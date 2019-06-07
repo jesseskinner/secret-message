@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Secret Message</title>
-</head>
-<body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Secret Message</title>
+		<style type="text/css">
+			textarea {
+				width: 600px;
+				height: 150px;
+				font-size: 200%;
+			}
+			canvas {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Secret Message</h1>
 
-    <h1>Secret Message</h1>
-    
-    <p>Upload an image</p>
+		<p>
+			<label>
+				1. Upload an image:
+				<input type="file" />
+			</label>
+		</p>
 
-    <form>
-        <input type="file">
-    </form>
+		<p>
+			<label>
+				2. Enter your secret message:<br />
+				<textarea></textarea>
+			</label>
+		</p>
 
-    <textarea></textarea>
+		<p><button id="download">Download Image with Secret Message</button></p>
 
-    <script type="module" src="js/secret-message.js"></script>
-</body>
+		<script type="module" src="js/secret-message.js"></script>
+	</body>
 </html>

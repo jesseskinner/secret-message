@@ -1,8 +1,10 @@
-import { textToBinary, binaryToText } from './binary.js';
+import { hasSignature, readMessage, writeMessage } from './encoding.js';
 
 const fileInput = document.querySelector('input[type="file"]');
 const textarea = document.querySelector('textarea');
 const canvas = document.createElement('canvas');
+const downloadButton = document.querySelector('#download');
+
 const img = new Image();
 let ctx;
 
@@ -26,6 +28,25 @@ fileInput.addEventListener('change', event => {
 
 textarea.addEventListener('input', () => addSecretMessage(textarea.value));
 
+downloadButton.addEventListener('click', downloadImage);
+
+function downloadImage() {
+	canvas.toBlob(blob => {
+		const url = URL.createObjectURL(blob, { type: 'image/png' });
+
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'secret.png';
+		a.style.display = 'none';
+        document.body.appendChild(a);
+        
+        a.click();
+        
+		a.remove();
+		URL.revokeObjectURL(url);
+	}, 'image/png');
+}
+
 function renderCanvas(img, width, height) {
 	canvas.width = width;
 	canvas.height = height;
@@ -34,20 +55,16 @@ function renderCanvas(img, width, height) {
 	ctx = canvas.getContext('2d');
 	ctx.drawImage(img, 0, 0, width, height);
 
-    getSecretMessageFromCanvas();
+	getSecretMessageFromCanvas();
 }
 
 function getSecretMessageFromCanvas() {
 	const data = ctx.getImageData(0, 0, img.width, img.height).data;
 
-	if (containsSecretMessage(data)) {
-		const message = readSecretMessage(data);
-		console.log(message);
+	if (hasSignature(data)) {
+		const message = readMessage(data);
+		textarea.value = message;
 	}
-}
-
-function containsSecretMessage(data) {
-	return data[0] === 0 && data[1] === 0 && data[2] === 0;
 }
 
 function addSecretMessage(text) {
@@ -56,54 +73,9 @@ function addSecretMessage(text) {
 	const imageData = ctx.getImageData(0, 0, img.width, img.height);
 	const data = imageData.data;
 
-	// set first pixel black to identify there is a secret message here
-	// TODO: something better
-	data[0] = 0;
-	data[1] = 0;
-	data[2] = 0;
+	writeMessage(data, text);
 
-	const binary = textToBinary(text);
+	ctx.putImageData(imageData, 0, 0);
 
-	data[4] = text.length;
-	// data[5] =
-    // data[6] =
-    
-	for (let i = 0; i < binary.length; i += 3) {
-		const index = 8 + i + (i / 3);
-
-		data[index] = binary[i];
-
-		if (i + 1 < binary.length) {
-			data[index + 1] = binary[i + 1];
-		}
-
-		if (i + 2 < binary.length) {
-			data[index + 2] = binary[i + 2];
-        }
-	}
-
-    ctx.putImageData(imageData, 0, 0);
-    
-    getSecretMessageFromCanvas();
-}
-
-function readSecretMessage(data) {
-	const length = data[4] * 8;
-	const binary = [];
-
-	for (let i = 0; i < length; i += 3) {
-		const index = 8 + i + (i / 3);
-
-		binary[i] = data[index];
-
-		if (i + 1 < length) {
-			binary[i + 1] = data[index + 1];
-		}
-
-		if (i + 2 < length) {
-			binary[i + 2] = data[index + 2];
-		}
-    }
-    
-    return binaryToText(binary);
+	getSecretMessageFromCanvas();
 }

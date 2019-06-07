@@ -23,3 +23,28 @@ export function binaryToText(binary) {
 
     return chars.join('');
 }
+
+export function setLastBits(number, bits) {
+	number = number >>> bits.length;
+
+	for (let i = 0; i < bits.length; i++) {
+		number = (number << 1) | bits[i];
+	}
+
+	return number;
+}
+
+export function getLastBits(number, count) {
+    const bits = [];
+
+    for (let i= 0;i< count;i++) {
+        bits.unshift(number & 1);
+        number = number >>> 1;
+    }
+
+    return bits;
+}
+
+export function setLastBit(number, bit) {
+	return ((number >>> 1) << 1) | bit;
+}
